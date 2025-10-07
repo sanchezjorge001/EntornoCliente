@@ -117,8 +117,6 @@ function App() {
           Reiniciar 🔁
         </button>
       </div>
-
-      <p style={{ marginTop: "40px" }}>⚙️ Cada jugador tiene su propio tambor de 6 cámaras.</p>
     </div>
   );
 }
