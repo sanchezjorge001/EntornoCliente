@@ -1,25 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+function App(){
+  const[mensaje, setMensaje] = useState("Pulsa el gatillo para comenzar");
+  const[bala, setBala] = useState(Math.floor(Math.random() * 6) + 1);
+  const[intento,setIntento] = useState(1);
+
+  const[gameover, setGameOver] = useState(false);
+
+  const[disparar] = () => {
+    if(gameover) return;
+
+    if (intento == bala){
+      setMensaje ("💀HAS MUERTO💀");
+      setGameOver(true);
+    } else {
+
+      
+    }
+  }
 }
 
-export default App;
+
+
+
