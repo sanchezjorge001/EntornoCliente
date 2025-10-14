@@ -1,29 +1,31 @@
 import { useState } from "react";
 
 function App() {
-  const [jugadorActual, setJugadorActual] = useState(1);
-  const [balas, setBalas] = useState({
+  const [jugadorActual, setJugadorActual] = useState(1); // Seteamos el jugador que tiene el turno actual
+  const [balas, setBalas] = useState({ // Balas aleatorias para el arma
     1: Math.floor(Math.random() * 6) + 1,
     2: Math.floor(Math.random() * 6) + 1,
   });
-  const [camaras, setCamaras] = useState({ 1: 6, 2: 6 });
-  const [mensaje, setMensaje] = useState("🎮 Jugador 1 empieza. Pulsa disparar 🔫");
-  const [gameOver, setGameOver] = useState(false);
+  const [camaras, setCamaras] = useState({ 1: 6, 2: 6 }); // Camaras del arma
+  const [mensaje, setMensaje] = useState("🎮 Jugador 1 empieza. Pulsa disparar 🔫"); // variable estado para los mensajes de los turnos
+  const [gameOver, setGameOver] = useState(false); // Constantes para el estado de la partida, con gameover finalizamos la partida cuando alguien muera o se acaben las rondas
 
   const disparar = () => {
     if (gameOver) return;
 
+    // Sacamos aleatoriamente el disparo
     const disparo = Math.floor(Math.random() * 6) + 1;
 
+    // Condicional para comprobar si ha seleccionado la bala y el jugador muere
     if (disparo === balas[jugadorActual]) {
       setMensaje(`💀 ¡Bang! Jugador ${jugadorActual} ha perdido.`);
       setGameOver(true);
       return;
     }
 
-    // jugador se salva
+    // Se hacen nuevas camaras aleatorias en cada turno  
     const nuevasCamaras = { ...camaras, [jugadorActual]: camaras[jugadorActual] - 1 };
-
+    
     if (nuevasCamaras[jugadorActual] === 0) {
       setMensaje(`🎉 Jugador ${jugadorActual} ha sobrevivido las 6 cámaras. ¡Gana la partida!`);
       setGameOver(true);
@@ -32,11 +34,14 @@ function App() {
 
     setCamaras(nuevasCamaras);
 
+
+    // El jugador se salva y pasa el turno al siguiente jugador
     const siguiente = jugadorActual === 1 ? 2 : 1;
     setMensaje(`😅 Jugador ${jugadorActual} se salvó. Turno del Jugador ${siguiente}.`);
     setJugadorActual(siguiente);
   };
 
+  // Reiniciamos la partida cuando el usuario lo desee
   const reiniciar = () => {
     setJugadorActual(1);
     setBalas({
@@ -48,7 +53,7 @@ function App() {
     setGameOver(false);
   };
 
-  // 🎨 Estilos
+  // Estilos
   const container = {
     textAlign: "center",
     fontFamily: "Arial, sans-serif",
@@ -92,6 +97,8 @@ function App() {
     color: "white",
   };
 
+
+  // Return con todo el html donde tenemos los botones y demas
   return (
     <div style={container}>
       <h1>🔫 Ruleta Rusa por Turnos</h1>
