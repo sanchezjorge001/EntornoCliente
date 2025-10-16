@@ -1,1 +1,3 @@
-Hola este es un documento para apumtes de Cliente
+- Piedra, papel o tijera
+- Ruleta rusa
+- Ahorcado

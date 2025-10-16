@@ -25,7 +25,7 @@ export default function App() {
 
   useEffect(() => {
     checkEnd();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [guessed, wrongCount, secret]);
 
   function randomWord(list) {
@@ -86,90 +86,4 @@ export default function App() {
       .join(' ');
   }
 
-  function keyboard() {
-    const keys = 'abcdefghijklmnñopqrstuvwxyz'.split('');
-    return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '6px', marginTop: '10px' }}>
-        {keys.map(k => {
-          const disabled = guessed.has(k) || gameOver;
-          return (
-            <button
-              key={k}
-              onClick={() => handleGuess(k)}
-              disabled={disabled}
-              style={{
-                padding: '8px',
-                borderRadius: '6px',
-                border: '1px solid #ccc',
-                backgroundColor: disabled ? '#ddd' : '#f5f5f5',
-                cursor: disabled ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {k}
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
-
-  useEffect(() => {
-    function onKey(e) {
-      const key = e.key.toLowerCase();
-      if (/^[a-zñ]$/.test(key)) handleGuess(key);
-      if (key === 'enter' && gameOver) randomize();
-    }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [guessed, gameOver, secret, wrongCount]);
-
-  return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-      <h1>Ahorcado</h1>
-
-      <div style={{ marginBottom: '20px' }}>
-        <img
-          src={imagesArray[Math.min(wrongCount, imagesArray.length - 1)]}
-          alt={`Ahorcado estado ${wrongCount}`}
-          style={{ maxHeight: '300px' }}
-        />
-      </div>
-
-      <div style={{ fontSize: '24px', marginBottom: '10px' }}>
-        {revealWord()}
-      </div>
-
-      <div style={{ marginBottom: '10px' }}>
-        Errores: {wrongCount} / {maxWrong}
-      </div>
-
-      {keyboard()}
-
-      <div style={{ marginTop: '20px' }}>
-        {gameOver ? (
-          won ? (
-            <div style={{ color: 'green', fontWeight: 'bold' }}>¡Has ganado! 🎉</div>
-          ) : (
-            <div style={{ color: 'red', fontWeight: 'bold' }}>
-              Has perdido. La palabra era: <span>{secret}</span>
-            </div>
-          )
-        ) : (
-          <div>Sigue intentando. Usa el teclado o presiona Enter para reiniciar al terminar.</div>
-        )}
-      </div>
-
-      <button
-        onClick={randomize}
-        style={{
-          marginTop: '15px',
-          padding: '8px 16px',
-          borderRadius: '6px',
-          cursor: 'pointer',
-        }}
-      >
-        Reiniciar
-      </button>
-    </div>
-  );
 }
