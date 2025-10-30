@@ -1,131 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect } from 'react'
+import Jugador from './Jugador';
 
-function App() {
-  const [jugadorActual, setJugadorActual] = useState(1); // Seteamos el jugador que tiene el turno actual
-  const [balas, setBalas] = useState({ // Balas aleatorias para el arma
-    1: Math.floor(Math.random() * 6) + 1,
-    2: Math.floor(Math.random() * 6) + 1,
-  });
-  const [camaras, setCamaras] = useState({ 1: 6, 2: 6 }); // Camaras del arma
-  const [mensaje, setMensaje] = useState("🎮 Jugador 1 empieza. Pulsa disparar 🔫"); // variable estado para los mensajes de los turnos
-  const [gameOver, setGameOver] = useState(false); // Constantes para el estado de la partida, con gameover finalizamos la partida cuando alguien muera o se acaben las rondas
+const TAMANIO_TAMBOR = 6
 
-  const disparar = () => {
-    if (gameOver) return;
-
-    // Sacamos aleatoriamente el disparo
-    const disparo = Math.floor(Math.random() * 6) + 1;
-
-    // Condicional para comprobar si ha seleccionado la bala y el jugador muere
-    if (disparo === balas[jugadorActual]) {
-      setMensaje(`💀 ¡Bang! Jugador ${jugadorActual} ha perdido.`);
-      setGameOver(true);
-      return;
-    }
-
-    // Se hacen nuevas camaras aleatorias en cada turno  
-    const nuevasCamaras = { ...camaras, [jugadorActual]: camaras[jugadorActual] - 1 };
-    
-    if (nuevasCamaras[jugadorActual] === 0) {
-      setMensaje(`🎉 Jugador ${jugadorActual} ha sobrevivido las 6 cámaras. ¡Gana la partida!`);
-      setGameOver(true);
-      return;
-    }
-
-    setCamaras(nuevasCamaras);
-
-
-    // El jugador se salva y pasa el turno al siguiente jugador
-    const siguiente = jugadorActual === 1 ? 2 : 1;
-    setMensaje(`😅 Jugador ${jugadorActual} se salvó. Turno del Jugador ${siguiente}.`);
-    setJugadorActual(siguiente);
-  };
-
-  // Reiniciamos la partida cuando el usuario lo desee
-  const reiniciar = () => {
-    setJugadorActual(1);
-    setBalas({
-      1: Math.floor(Math.random() * 6) + 1,
-      2: Math.floor(Math.random() * 6) + 1,
-    });
-    setCamaras({ 1: 6, 2: 6 });
-    setMensaje("🎮 Jugador 1 empieza. Pulsa disparar 🔫");
-    setGameOver(false);
-  };
-
-  // Estilos
-  const container = {
-    textAlign: "center",
-    fontFamily: "Arial, sans-serif",
-    padding: "30px",
-    backgroundColor: "#f5f5f5",
-    minHeight: "100vh",
-  };
-
-  const box = {
-    display: "inline-block",
-    width: "200px",
-    margin: "10px",
-    padding: "20px",
-    borderRadius: "10px",
-    backgroundColor: "#fff",
-    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-  };
-
-  const activePlayer = {
-    border: "2px solid #007bff",
-  };
-
-  const button = {
-    margin: "10px",
-    padding: "10px 20px",
-    borderRadius: "8px",
-    border: "none",
-    fontSize: "16px",
-    cursor: "pointer",
-  };
-
-  const shootButton = {
-    ...button,
-    backgroundColor: "#28a745",
-    color: "white",
-  };
-
-  const resetButton = {
-    ...button,
-    backgroundColor: "#dc3545",
-    color: "white",
-  };
-
-
-  // Return con todo el html donde tenemos los botones y demas
-  return (
-    <div style={container}>
-      <h1>🔫 Ruleta Rusa por Turnos</h1>
-
-      <div style={{ display: "flex", justifyContent: "center", gap: "30px" }}>
-        <div style={{ ...box, ...(jugadorActual === 1 ? activePlayer : {}) }}>
-          <h2>Jugador 1 👷</h2>
-          <p>Cámaras restantes: {camaras[1]}</p>
-        </div>
-        <div style={{ ...box, ...(jugadorActual === 2 ? activePlayer : {}) }}>
-          <h2>Jugador 2 👷‍♂️</h2>
-          <p>Cámaras restantes: {camaras[2]}</p>
-        </div>
-      </div>
-
-      <p style={{ fontSize: "18px", marginTop: "20px" }}>{mensaje}</p>
-
-      <div>
-        <button onClick={disparar} style={shootButton} disabled={gameOver}>
-          Disparar 🔫
-        </button>
-        <button onClick={reiniciar} style={resetButton}>
-          Reiniciar 🔁
-        </button>
-      </div>
-    </div>
-  );
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-export default App;
+export default function RuletaRusa() {
+
+    const [pistola, setPistola] = useState(Array(TAMANIO_TAMBOR).fill(0))
+    const [jugadores, setJugadores] = useState([])
+
+    function cargarPistola() {
+        const nuevaPistola = Array(TAMANIO_TAMBOR).fill(0)
+        let posicionBala = getRandomInt(0, TAMANIO_TAMBOR - 1)
+
+        nuevaPistola[posicionBala] = 1
+        setPistola(nuevaPistola)
+    }
+
+    function elegirCantidadJugadores(cantidadJugadores) {
+        const nuevosJugadores = Array(Number(cantidadJugadores)).fill(1)
+        setJugadores(nuevosJugadores)
+    }
+
+    function pegarseUnTiro(numeroJugador){
+        let hayBala = pistola[0]
+
+        if(hayBala){
+            const copiaJugadores = jugadores.slice() // Copio el array
+            copiaJugadores[numeroJugador] = 0
+            setJugadores(copiaJugadores)
+        }
+
+        cargarPistola();
+    }
+
+    useEffect(() => {
+        cargarPistola();
+    }, []);
+
+    return (
+        <>
+            <h1>RULETA RUSA</h1>
+            <label>Numero de jugadores: <input type="number" onChange={(input) => elegirCantidadJugadores(input.target.value)} /></label>
+
+            {jugadores.map((value, index) => (
+                <Jugador jugador={index} estadoJugador={value} disparar={() => pegarseUnTiro(index)}></Jugador>
+            ))}
+
+        </>
+    )
+}

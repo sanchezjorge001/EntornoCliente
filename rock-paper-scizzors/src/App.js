@@ -1,151 +1,103 @@
-import { useState } from "react";
+import { useState, useEffect } from 'react'
+import './App.css'
 
-export default function App() {
-  const opciones = ["Piedra", "Papel", "Tijera"];
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
-  // Constantes con el estado
-  const [eleccionUsuario, setEleccionUsuario] = useState(null);
-  const [eleccionMaquina, setEleccionMaquina] = useState(null);
-  const [resultado, setResultado] = useState("");
-  const [marcador, setMarcador] = useState({ usuario: 0, maquina: 0 });
-  const [ganadorPartida, setGanadorPartida] = useState(null);
+function Seleccion({ seleccion }) {
+  return (
+    <h1>
+      {seleccion}
+    </h1>
+  )
+}
 
-  const jugar = (opcion) => {
-    if (ganadorPartida) return; // Si hay un ganador, acaba la partida
+function Juego() {
 
-    const eleccionCPU = opciones[Math.floor(Math.random() * opciones.length)];
-    setEleccionUsuario(opcion);
-    setEleccionMaquina(eleccionCPU);
+  const [seleccionJugador, setSeleccionJugador] = useState("")
+  const [seleccionMaquina, setSeleccionMaquina] = useState("")
+  const [ganador, setGanador] = useState()
 
-    // Bucle para todas las combinaciones posibles
-    let res = "";
-    if (opcion === eleccionCPU) {
-      res = "¡Empate!";
-    } else if (
-      (opcion === "Piedra" && eleccionCPU === "Tijera") ||
-      (opcion === "Papel" && eleccionCPU === "Piedra") ||
-      (opcion === "Tijera" && eleccionCPU === "Papel")
-    ) {
-      res = "¡Ganaste!";
-      setMarcador((prev) => {
-        const nuevo = { ...prev, usuario: prev.usuario + 1 };
-        if (nuevo.usuario === 2) setGanadorPartida("Jugador");
-        return nuevo;
-      });
-    } else {
-      res = "Perdiste...";
-      setMarcador((prev) => {
-        const nuevo = { ...prev, maquina: prev.maquina + 1 };
-        if (nuevo.maquina === 2) setGanadorPartida("Máquina");
-        return nuevo;
-      });
+  const [puntosJugador, setPuntosJugador] = useState(0)
+  const [puntosMaquina, setPuntosMaquina] = useState(0)
+
+  const opciones = ["🥌", "🧻", "✂"]
+  const alMejorDe = 3
+
+  useEffect(() => {
+    comprobarGanador();
+  }, [puntosJugador, puntosMaquina]); // useEffect se llama cada vez que una de estas variables cambia
+
+  function jugarTurno(seleccionJugadorEnTurno) {
+
+    if (!ganador) {
+      let indiceAleatorio = getRandomInt(0, opciones.length - 1)
+      let seleccionMaquinaEnTurno = opciones[indiceAleatorio]
+
+      setSeleccionJugador(seleccionJugadorEnTurno)
+      setSeleccionMaquina(seleccionMaquinaEnTurno)
+
+      comprobarTurno(seleccionJugadorEnTurno, seleccionMaquinaEnTurno)
     }
 
-    setResultado(res);
-  };
+  }
 
-  // Reiniciar la partida
-  const reiniciarPartida = () => {
-    setEleccionUsuario(null);
-    setEleccionMaquina(null);
-    setResultado("");
-    setMarcador({ usuario: 0, maquina: 0 });
-    setGanadorPartida(null);
-  };
+  function comprobarTurno(seleccionJugador1, seleccionJugador2) {
+    if (seleccionJugador1 == seleccionJugador2) {
+
+    } else if ((seleccionJugador1 == "🥌" && seleccionJugador2 == "✂")
+      || (seleccionJugador1 == "✂" && seleccionJugador2 == "🧻")
+      || (seleccionJugador1 == "🧻" && seleccionJugador2 == "🥌")
+    ) {
+      setPuntosJugador(puntosJugador + 1)
+    } else {
+      setPuntosMaquina(puntosMaquina + 1)
+    }
+
+  }
+
+  function comprobarGanador() {
+    if (puntosJugador == alMejorDe) {
+      setGanador("Gana el jugador")
+    } else if (puntosMaquina == alMejorDe) {
+      setGanador("Gana la maquina")
+    }
+  }
+
+  function resetearJuego() {
+    setSeleccionJugador("")
+    setSeleccionMaquina("")
+    setGanador()
+    setPuntosJugador(0)
+    setPuntosMaquina(0)
+  }
 
   return (
-    <div style={{ textAlign: "center", marginTop: "40px", fontFamily: "Arial" }}>
+    <>
+      <div className='container-fluid'>
+        <h1> {puntosJugador} - {puntosMaquina}</h1>
+        <h2>{ganador}</h2>
+        <div className='row'>
 
-      <h1>
-        Marcador: {marcador.usuario} - {marcador.maquina}
-      </h1>
+          <div className='col-6 px-2'>
+            <Seleccion seleccion={seleccionJugador}></Seleccion>
+            <button onClick={() => jugarTurno("🥌")}>🥌</button>
+            <button onClick={() => jugarTurno("🧻")}>🧻</button>
+            <button onClick={() => jugarTurno("✂")}>✂</button>
+          </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "50px",
-          margin: "20px",
-          fontSize: "2rem",
-        }}
-      >
-        <div>
-          <h3>Jugador</h3>
-          <p>{eleccionUsuario ? mostrarEmoji(eleccionUsuario) : "❔"}</p>
+          <div className='col-6 px-2'>
+            <Seleccion seleccion={seleccionMaquina}></Seleccion>
+          </div>
+
         </div>
-        <div>
-          <h3>Máquina</h3>
-          <p>{eleccionMaquina ? mostrarEmoji(eleccionMaquina) : "❔"}</p>
-        </div>
+        {(ganador) && <button onClick={resetearJuego}>Volver a jugar</button> }
       </div>
-
-      <h2>{resultado}</h2>
-      {ganadorPartida && (
-        <h1 style={{ color: ganadorPartida === "Jugador" ? "green" : "red" }}>
-          Ganador de la partida: {ganadorPartida}
-        </h1>
-      )}
-
-      <div style={{ marginTop: "30px" }}>
-        <button
-          onClick={() => jugar("Piedra")}
-          style={estiloBoton}
-          disabled={ganadorPartida !== null}
-        >
-          ✊
-        </button>
-        <button
-          onClick={() => jugar("Papel")}
-          style={estiloBoton}
-          disabled={ganadorPartida !== null}
-        >
-          🖐️
-        </button>
-        <button
-          onClick={() => jugar("Tijera")}
-          style={estiloBoton}
-          disabled={ganadorPartida !== null}
-        >
-          ✌️
-        </button>
-      </div>
-
-      {ganadorPartida && (
-        <button
-          onClick={reiniciarPartida}
-          style={{
-            marginTop: "30px",
-            padding: "10px 20px",
-            fontSize: "18px",
-            cursor: "pointer",
-            borderRadius: "8px",
-          }}
-        >
-          Reiniciar Partida
-        </button>
-      )}
-    </div>
-  );
+    </>
+  )
 }
 
-const estiloBoton = {
-  margin: "10px",
-  padding: "10px 20px",
-  fontSize: "30px",
-  width: "90px",
-  height: "70px",
-};
-
-// Función para convertir nombres en emojis
-function mostrarEmoji(nombre) {
-  switch (nombre) {
-    case "Piedra":
-      return "✊";
-    case "Papel":
-      return "🖐️";
-    case "Tijera":
-      return "✌️";
-    default:
-      return "❔";
-  }
-}
+export default Juego

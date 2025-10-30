@@ -1,89 +1,93 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useEffect, useState } from 'react'
+import arrayPalabras from "./palabras.json";
+import Monieco from './Monieco';
+import "./App.css";
 
-// Importar imágenes desde src/images
-import img0 from './images/0.png';
-import img1 from './images/1.png';
-import img2 from './images/2.png';
-import img3 from './images/3.png';
-import img4 from './images/4.png';
-import img5 from './images/5.png';
-import img6 from './images/6.png';
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
-export default function App() {
-  const maxWrong = 6;
-  const words = ["computadora", "bicicleta", "volcan", "escuela", "jirafa", "chocolate", "planeta", "biblioteca", "telefono", "montaña", "pirata", "astronauta", "teclado", "castillo", "mariposa"];
+function App() {
 
-  // Array de imágenes
-  const imagesArray = useMemo(() => [img0, img1, img2, img3, img4, img5, img6], []);
+  const MAX_FALLOS = 6
 
-  // Estado del juego
-  const [secret, setSecret] = useState(() => randomWord(words));
-  const [guessed, setGuessed] = useState(new Set());
-  const [wrongCount, setWrongCount] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
-  const [won, setWon] = useState(false);
+  const [palabraAleatoria, setPalabraAleatoria] = useState("")
+  const [palabraOculta, setPalabraOculta] = useState(null)
+  const [letrasIntroducidas, setLetrasIntroducidas] = useState([])
+  const [fallos, setFallos] = useState(0)
 
   useEffect(() => {
-    checkEnd();
-    
-  }, [guessed, wrongCount, secret]);
-
-  function randomWord(list) {
-    return list[Math.floor(Math.random() * list.length)];
-  }
-
-  function randomize() {
-    setSecret(randomWord(words));
-    setGuessed(new Set());
-    setWrongCount(0);
-    setGameOver(false);
-    setWon(false);
-  }
-
-  function handleGuess(letter) {
-    if (gameOver) return;
-    letter = letter.toLowerCase();
-    if (guessed.has(letter)) return;
-
-    const next = new Set(guessed);
-    next.add(letter);
-    setGuessed(next);
-
-    if (!secret.includes(letter)) {
-      setWrongCount(c => Math.min(c + 1, maxWrong));
+    if(fallos == MAX_FALLOS){
+      alert("Te has quedado sin vidas")
+      iniciarJuego()
     }
+  }, [fallos])
+
+  function elegirPalabraAleatoria() {
+    let indiceAleatorio = getRandomInt(0, arrayPalabras.length - 1)
+    let palabraAleatoria = arrayPalabras[indiceAleatorio]
+
+    setPalabraAleatoria(palabraAleatoria)
+    setPalabraOculta(Array(palabraAleatoria.length).fill(" _ "))
   }
 
-  function checkEnd() {
-    if (wrongCount >= maxWrong) {
-      setGameOver(true);
-      setWon(false);
-      return;
-    }
+  function iniciarJuego() {
+    elegirPalabraAleatoria()
+    setFallos(0)
+    setLetrasIntroducidas([])
+  }
 
-    const letters = new Set(secret.toLowerCase().replace(/[^a-zñáéíóúü]/g, '').split(''));
-    let all = true;
-    for (let l of letters) {
-      if (!guessed.has(l)) {
-        all = false;
-        break;
+  function rellenarLetrasPalabraOculta(letraIntroducida) {
+    const palabraOcultaCopy = palabraOculta.slice()
+
+    for (let i = 0; i < palabraAleatoria.length; i++) {
+      if (palabraAleatoria[i] == letraIntroducida) {
+        palabraOcultaCopy[i] = letraIntroducida
       }
     }
 
-    if (all && secret.length > 0) {
-      setGameOver(true);
-      setWon(true);
+    setPalabraOculta(palabraOcultaCopy)
+  }
+
+  function comprobarLetra(input) {
+    let letraIntroducida = input.target.value.toLowerCase()
+
+    let letraEstaUsada = letrasIntroducidas.includes(letraIntroducida)
+    let heGanado = !palabraOculta.includes(" _ ")
+
+    if (!letraEstaUsada && !heGanado) {
+      let letraEstaEnPalabra = palabraAleatoria.includes(letraIntroducida)
+
+      if (letraEstaEnPalabra) {
+        rellenarLetrasPalabraOculta(letraIntroducida)
+      } else {
+        setFallos(fallos + 1)
+      }
+
+      // letrasIntroducidas.slice() es lo mismo que [...letrasIntroducidas]
+      setLetrasIntroducidas([...letrasIntroducidas, letraIntroducida])
+
     }
+
   }
 
-  function revealWord() {
-    return secret
-      .split('')
-      .map(ch => {
-        if (/[^a-zñáéíóúü]/i.test(ch)) return ch;
-        return guessed.has(ch.toLowerCase()) ? ch : '_';
-      })
-      .join(' ');
-  }
+  return (
+    <>
+      {palabraAleatoria}<br></br>
+      {palabraOculta}<br></br>
+      {fallos}<br></br>
+      {letrasIntroducidas}<br></br>
+      <br></br><br></br>
+      {/* Pongo value={''} para que la caja de texto esté siempre vacía */}
+      <input onChange={comprobarLetra} value={''} type='text'></input>
+      <br></br><br></br>
+      <button onClick={iniciarJuego}>Iniciar juego</button>
 
+      <Monieco fallos={fallos} />
+    </>
+  )
 }
+
+export default App
