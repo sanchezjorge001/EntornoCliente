@@ -84,16 +84,6 @@ function Tablero() {
       </div>
 
       <div className="chip-actions">
-        <div className="acciones-chip">
-          <button onClick={limpiarApuestas} disabled={!apuestas.length || girando}>delete all</button>
-          <button onClick={eliminarUltimaApuesta} disabled={!apuestas.length || girando}>delete</button>
-          <button
-            onClick={repetirApuestas}
-            disabled={girando || !tieneApuestasPrevias || apuestas.length}
-          >
-            re-bet
-          </button>
-        </div>
         <div className="resumen-apuestas">
           <span>Apostado: €{totalApostado}</span>
           <span>Último premio: €{gananciaReciente}</span>
