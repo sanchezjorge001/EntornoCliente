@@ -13,7 +13,6 @@ function App() {
             <div className='ruleta-separada'>
               <RuletaPalanca />
             </div>
-            {/* El tablero debe ir abajo */}
             <div className='tablero-separado' style={{marginTop: '20rem'}}>
               <Tablero />
             </div>
